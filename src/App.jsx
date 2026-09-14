@@ -68,6 +68,13 @@ function App() {
       <TetrisBackground />
       <div className="crt-overlay"></div>
       
+      {/* HIMA Logo Top Left */}
+      <img 
+        src="/images/logo_hima.jpg" 
+        alt="Logo Hima" 
+        className="absolute top-6 left-6 w-16 h-16 rounded-full object-cover z-[100] border-2 border-white shadow-lg"
+      />
+      
       {/* Dynamic Content */}
       <div className="main-content z-10 relative">
         {currentStep === 'home' && <Home onStart={startFlow} />}

@@ -43,7 +43,25 @@ const PreviewEdit = ({ selectedFrame, photos, onNext, onBack }) => {
 
           const img = new Image();
           img.onload = () => {
-            ctx.drawImage(img, bx, by, bw, bh);
+            const imgAspect = img.width / img.height;
+            const boxAspect = bw / bh;
+            let sx, sy, sw, sh;
+            
+            if (imgAspect > boxAspect) {
+                // Image is wider than box -> crop sides
+                sh = img.height;
+                sw = img.height * boxAspect;
+                sx = (img.width - sw) / 2;
+                sy = 0;
+            } else {
+                // Image is taller than box -> crop top/bottom
+                sw = img.width;
+                sh = img.width / boxAspect;
+                sx = 0;
+                sy = (img.height - sh) / 2;
+            }
+            
+            ctx.drawImage(img, sx, sy, sw, sh, bx, by, bw, bh);
             loaded++;
             if (loaded === total && callback) callback();
           };
@@ -70,14 +88,31 @@ const PreviewEdit = ({ selectedFrame, photos, onNext, onBack }) => {
           // Green screen removal (Chroma key for bright green)
           const imgData = offCtx.getImageData(0, 0, width, height);
           const data = imgData.data;
-          for (let i = 0; i < data.length; i += 4) {
-             const r = data[i];
-             const g = data[i + 1];
-             const b = data[i + 2];
-             
-             // Detect bright green (e.g. #00FF00 or the user's specific green)
-             if (g > 150 && r < 180 && b < 100) {
-                 data[i + 3] = 0; // Make transparent
+
+          const pixelInsideBox = (px, py) => {
+              for (const box of layoutBoxes) {
+                  const bx = box.x * width;
+                  const by = box.y * height;
+                  const bw = box.w * width;
+                  const bh = box.h * height;
+                  if (px >= bx && px <= bx + bw && py >= by && py <= by + bh) {
+                      return true;
+                  }
+              }
+              return false;
+          };
+
+          for (let py = 0; py < height; py++) {
+             for (let px = 0; px < width; px++) {
+                 const i = (py * width + px) * 4;
+                 const r = data[i];
+                 const g = data[i + 1];
+                 const b = data[i + 2];
+                 
+                 // Detect black only inside the photo boxes
+                 if (r < 50 && g < 50 && b < 50 && pixelInsideBox(px, py)) {
+                     data[i + 3] = 0; // Make transparent
+                 }
              }
           }
           offCtx.putImageData(imgData, 0, 0);

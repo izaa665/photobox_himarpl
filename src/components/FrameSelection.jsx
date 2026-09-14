@@ -2,30 +2,46 @@ import React, { useState } from 'react';
 
 // Hardcoded layouts for various frames
 const layouts = {
-  custom3: {
-    width: 1080, height: 1920, photoCount: 3,
+  frame1: {
+    width: 533, height: 1600, photoCount: 3,
     boxes: [
-      { x: 0.10, y: 0.11, w: 0.80, h: 0.20 },
-      { x: 0.10, y: 0.34, w: 0.80, h: 0.20 },
-      { x: 0.10, y: 0.57, w: 0.80, h: 0.20 }
+      { x: 0.079, y: 0.103, w: 0.842, h: 0.189 },
+      { x: 0.079, y: 0.333, w: 0.841, h: 0.189 },
+      { x: 0.079, y: 0.561, w: 0.841, h: 0.190 }
     ]
   },
-  custom4: {
-    width: 1080, height: 1920, photoCount: 4,
+  frame2: {
+    width: 533, height: 1600, photoCount: 4,
     boxes: [
-      { x: 0.12, y: 0.05, w: 0.76, h: 0.20 },
-      { x: 0.12, y: 0.28, w: 0.76, h: 0.20 },
-      { x: 0.12, y: 0.51, w: 0.76, h: 0.20 },
-      { x: 0.12, y: 0.74, w: 0.76, h: 0.20 }
+      { x: 0.16, y: 0.066, w: 0.68, h: 0.17 },
+      { x: 0.16, y: 0.255, w: 0.68, h: 0.17 },
+      { x: 0.16, y: 0.444, w: 0.68, h: 0.17 },
+      { x: 0.16, y: 0.634, w: 0.68, h: 0.17 }
+    ]
+  },
+  frame3: {
+    width: 533, height: 1600, photoCount: 3,
+    boxes: [
+      { x: 0.10, y: 0.165, w: 0.83, h: 0.214 },
+      { x: 0.10, y: 0.401, w: 0.83, h: 0.214 },
+      { x: 0.10, y: 0.637, w: 0.83, h: 0.214 }
+    ]
+  },
+  frame4: {
+    width: 533, height: 1600, photoCount: 3,
+    boxes: [
+      { x: 0.10, y: 0.113, w: 0.80, h: 0.198 },
+      { x: 0.10, y: 0.342, w: 0.80, h: 0.198 },
+      { x: 0.10, y: 0.572, w: 0.80, h: 0.198 }
     ]
   }
 };
 
 const frameDesigns = [
-  { id: 'frame1', name: 'Frame 1', category: 'Semua', photoCount: 3, layout: layouts.custom3, image: '/assets/frames/strip 1.png', color: '#ffffff' },
-  { id: 'frame2', name: 'Frame 2', category: 'Semua', photoCount: 4, layout: layouts.custom4, image: '/assets/frames/strip 2.png', color: '#ffffff' },
-  { id: 'frame3', name: 'Frame 3', category: 'Semua', photoCount: 3, layout: layouts.custom3, image: '/assets/frames/strip 3.png', color: '#ffffff' },
-  { id: 'frame4', name: 'Frame 4', category: 'Semua', photoCount: 3, layout: layouts.custom3, image: '/assets/frames/strip 4.png', color: '#ffffff' }
+  { id: 'frame1', name: 'Frame 1', category: 'Semua', photoCount: 3, layout: layouts.frame1, image: '/assets/frames/strip_1.png', color: '#ffffff' },
+  { id: 'frame2', name: 'Frame 2', category: 'Semua', photoCount: 4, layout: layouts.frame2, image: '/assets/frames/strip_2.png', color: '#ffffff' },
+  { id: 'frame3', name: 'Frame 3', category: 'Semua', photoCount: 3, layout: layouts.frame3, image: '/assets/frames/strip_3.png', color: '#ffffff' },
+  { id: 'frame4', name: 'Frame 4', category: 'Semua', photoCount: 3, layout: layouts.frame4, image: '/assets/frames/strip_4.png', color: '#ffffff' }
 ];
 
 const categories = ['Semua'];
@@ -144,7 +160,7 @@ const FrameSelection = ({ onSelectFrame, onBack }) => {
             }
           `}
         >
-          LANJUTKAN [ENTER]
+          LANJUTKAN
         </button>
       </div>
 
