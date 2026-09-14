@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Foto - Photobox Dino Expo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #ff6b9d;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .info {
+            background: #fff5f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #ff6b9d;
+        }
+
+        .info p {
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .photo-card .photo-info {
+            padding: 15px;
+        }
+
+        .photo-card .photo-info h3 {
+            color: #ff6b9d;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #ff6b9d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .download-btn:hover {
+            background: #ff4d8a;
+        }
+
+        .download-all {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .download-all-btn {
+            background: #ff6b9d;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+        .download-all-btn:hover {
+            background: #ff4d8a;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦖 Photobox Dino Expo</h1>
+            <p>Download hasil foto photobox Anda</p>
+        </div>
+
+        <div id="content">
+            <div class="loading">Memuat foto...</div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Dino Expo. Semoga Anda menikmati pengalaman seru di Dino Expo 💖</p>
+        </div>
+    </div>
+
+    <script>
+        // Get session ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session');
+
+        if (!sessionId) {
+            document.getElementById('content').innerHTML = `
+                <div class="error">
+                    <h2>Session ID tidak ditemukan</h2>
+                    <p>Silakan buka link dari email yang Anda terima.</p>
+                </div>
+            `;
+        } else {
+            // Fetch photos from server
+            fetch(`get_photos.php?session=${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        document.getElementById('content').innerHTML = `
+                            <div class="error">
+                                <h2>${data.message}</h2>
+                                <p>Silakan cek link dari email Anda atau hubungi admin.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Display photos
+                    let html = `
+                        <div class="info">
+                            <p><strong>Layout:</strong> ${data.layout}</p>
+                            <p><strong>Frame:</strong> ${data.frame}</p>
+                            <p><strong>Jumlah Foto yang Diambil:</strong> ${data.allPhotos ? data.allPhotos.length : 0}</p>
+                            <p><strong>Jumlah Foto di Layout:</strong> ${data.photos.length}</p>
+                            <p><strong>Tanggal:</strong> ${data.createdAt}</p>
+                        </div>
+                    `;
+
+                    // Add final composed photo if available
+                    if (data.finalPhoto) {
+                        const finalPhotoUrl = `photos/${data.sessionId}/${data.finalPhoto}`;
+                        html += `
+                            <div class="final-photo-section">
+                                <h2 style="color: #ff6b9d; text-align: center; margin-bottom: 20px;">📸 Foto Final dengan Layout & Frame</h2>
+                                <div class="photo-card" style="max-width: 600px; margin: 0 auto;">
+                                    <img src="${finalPhotoUrl}" alt="Foto Final" style="width: 100%; height: auto;">
+                                    <div class="photo-info">
+                                        <h3>Foto Final (Layout + Frame)</h3>
+                                        <a href="${finalPhotoUrl}" download="${data.finalPhoto}" class="download-btn">
+                                            📥 Download Foto Final
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Add all captured photos section
+                    if (data.allPhotos && data.allPhotos.length > 0) {
+                        html += `
+                            <div class="download-all">
+                                <a href="javascript:void(0)" onclick="downloadAllPhotos()" class="download-all-btn">
+                                    📥 Download Semua Foto yang Diambil (${data.allPhotos.length})
+                                </a>
+                            </div>
+
+                            <h2 style="color: #ff6b9d; text-align: center; margin: 30px 0 20px;">📷 Semua Foto yang Diambil (${data.allPhotos.length})</h2>
+
+                            <div class="photos-grid">
+                        `;
+
+                        data.allPhotos.forEach((photo, index) => {
+                            const photoUrl = `photos/${data.sessionId}/${photo}`;
+                            html += `
+                                <div class="photo-card">
+                                    <img src="${photoUrl}" alt="Foto ${index + 1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📷</text></svg>'">
+                                    <div class="photo-info">
+                                        <h3>Foto ${index + 1}</h3>
+                                        <a href="${photoUrl}" download="${photo}" class="download-btn">
+                                            📥 Download
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        html += `
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        </div>
+                    `;
+
+                    document.getElementById('content').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('content').innerHTML = `
+                        <div class="error">
+                            <h2>Terjadi kesalahan</h2>
+                            <p>Gagal memuat foto. Silakan coba lagi nanti.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Function to download all photos
+        function downloadAllPhotos() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session');
+            
+            fetch(`get_photos.php?session=${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) return;
+
+                    // Download all captured photos
+                    const photosToDownload = data.allPhotos || data.photos;
+                    
+                    photosToDownload.forEach((photo, index) => {
+                        setTimeout(() => {
+                            const link = document.createElement('a');
+                            link.href = `photos/${data.sessionId}/${photo}`;
+                            link.download = photo;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }, index * 500); // Download with 500ms delay between each
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal download foto. Silakan download satu per satu.');
+                });
+        }
+    </script>
+</body>
+</html>
